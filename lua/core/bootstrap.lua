@@ -15,3 +15,5 @@ require("lazy").setup {
   { import = "core.plugins" },
   { import = "plugins" },
 }
+
+-- test
