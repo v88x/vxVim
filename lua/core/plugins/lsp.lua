@@ -34,11 +34,13 @@ return {
         table.insert(servers, name)
       end
 
-      -- Setup mason-lspconfig
-      require("mason-lspconfig").setup {
-        ensure_installed = servers,
-        automatic_installation = true,
-      }
+      -- ISSUE: Automatic server installation does not work in nvim 0.11 with vim.lsp.enable()
+      -- https://github.com/mason-org/mason-lspconfig.nvim/issues/535
+      ---------------------------------------
+      -- require("mason-lspconfig").setup {
+      -- ensure_installed = servers,
+      -- automatic_installation = true,
+      -- }
 
       -- Setup LSP servers
       local lspconfig = require("lspconfig")
