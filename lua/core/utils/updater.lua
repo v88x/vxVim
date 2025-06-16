@@ -90,6 +90,8 @@ local fs = {
   end,
 }
 
+
+
 -- Git Operations
 local function run_git_command(cmd, callback)
   local timeout_prefix = config.timeout_cmd ~= "" and config.timeout_cmd .. " " or ""
@@ -164,19 +166,10 @@ local git = {
       return output
     end
     
-    return "• Core improvements and fixes"
+    return "Core improvements and fixes"
   end,
 
-  get_changed_files = function()
-    local cmd = "git diff --name-only HEAD.." .. config.remote .. "/" .. config.branch .. " | grep '^lua/core/' | head -5"
-    local success, output = run_git_command_sync(cmd)
-    
-    if success and output and output ~= "" then
-      return output:gsub("\n", "\n• ")
-    end
-    
-    return "Core configuration files"
-  end,
+
 
   get_remote_url = function()
     local remote_url_cmd = "cd " .. config.nvim_config_dir .. " && git remote get-url " .. config.remote
@@ -241,9 +234,9 @@ local updater = {
 -- Notification System
 local notify = {
   show_update_available = function(commits_count, latest_commits)
-    local title = "🚀 vxVim Update Available"
+    local title = "vxVim Update Available"
     local message = string.format(
-      "%d core file%s updated!\n\n📝 Latest changes:\n%s\n\n💡 Press <leader>uu to update",
+      "%d core file%s updated!\n\nLatest changes:\n%s\n\nPress <leader>uu to update",
       commits_count,
       commits_count > 1 and "s" or "",
       latest_commits
@@ -257,28 +250,28 @@ local notify = {
 
   show_progress = function(message)
     vim.notify(message, vim.log.levels.INFO, {
-      title = "🔄 vxVim Update",
+      title = "vxVim Update",
       timeout = 2000,
     })
   end,
 
   show_success = function(message)
     vim.notify(message, vim.log.levels.INFO, {
-      title = "✅ vxVim Updated",
+      title = "vxVim Updated",
       timeout = 4000,
     })
   end,
 
   show_error = function(message)
     vim.notify(message, vim.log.levels.ERROR, {
-      title = "❌ Update Error",
+      title = "Update Error",
       timeout = 5000,
     })
   end,
 
   show_info = function(message, title, timeout)
     vim.notify(message, vim.log.levels.INFO, {
-      title = title or "ℹ️ vxVim",
+      title = title or "vxVim",
       timeout = timeout or 2000,
     })
   end,
@@ -297,19 +290,13 @@ function M.check_for_updates(force)
   fs.save_check_time()
   
   git.fetch_updates(function(fetch_success, _)
-    if not fetch_success and config.silent_mode and not force then
+    if not fetch_success then
       return
     end
     
     local ok, has_updates, commits_count = pcall(git.check_commits_behind)
     
     if not ok then
-      if not config.silent_mode or force then
-        vim.notify("Error checking for updates", vim.log.levels.WARN, {
-          title = "⚠️ vxVim Update",
-          timeout = 2000,
-        })
-      end
       return
     end
     
@@ -341,26 +328,24 @@ function M.update_config()
   end
   
   if not has_updates then
-    notify.show_info("Already up to date!", "✅ vxVim")
+    notify.show_info("Already up to date!", "vxVim")
     return
   end
   
   local latest_commits = git.get_latest_commits()
-  local changed_files = git.get_changed_files()
   
   local info_message = string.format(
-    "Core updates available (%d files)\n\n📝 Changes:\n%s\n\n📁 Files:\n• %s\n\n⚠️  Your personal configs will be preserved",
+    "Core updates available (%d files)\n\nChanges:\n%s\n\nYour personal configs will be preserved",
     commits_count,
-    latest_commits,
-    changed_files
+    latest_commits
   )
   
-  notify.show_info(info_message, "🔄 Update Available", 8000)
+  notify.show_info(info_message, "Update Available", 8000)
   
   vim.ui.select(
-    { "✅ Yes, update core now", "❌ No, cancel" },
+    { "Yes, update core now", "No, cancel" },
     {
-      prompt = "🔄 Update vxVim core configuration?",
+      prompt = "Update vxVim core configuration?",
       format_item = function(item)
         return item
       end,
@@ -393,9 +378,9 @@ function M.perform_update()
   if success then
     notify.show_success(
       "Core updated successfully!\n\n" ..
-      "📁 Backup: " .. vim.fn.fnamemodify(backup_dir, ":t") .. "\n" ..
-      "🔄 Restart Neovim to apply changes\n" ..
-      "📦 Run :Lazy sync to update plugins"
+      "Backup: " .. vim.fn.fnamemodify(backup_dir, ":t") .. "\n" ..
+      "Restart Neovim to apply changes\n" ..
+      "Run :Lazy sync to update plugins"
     )
   else
     notify.show_error("Update failed: " .. message)
