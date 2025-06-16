@@ -1,7 +1,4 @@
 return {
-  -- ╭──────────────────────────────────────────────────────────╮
-  -- │ nvim-autopairs                                           │
-  -- ╰──────────────────────────────────────────────────────────╯
   {
     "windwp/nvim-autopairs",
     enabled = VX.plugins.highlight.autopairs,

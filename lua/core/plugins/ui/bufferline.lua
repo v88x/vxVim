@@ -1,8 +1,4 @@
 return {
-  -- ╭──────────────────────────────────────────────────────────╮
-  -- │ nvim-bufferline                                          │
-  -- │ tabs like in GUI text editors                            │
-  -- ╰──────────────────────────────────────────────────────────╯
   {
     "akinsho/nvim-bufferline.lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },

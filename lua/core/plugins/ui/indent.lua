@@ -1,8 +1,4 @@
 return {
-  -- ╭──────────────────────────────────────────────────────────╮
-  -- │ indent-blankline                                         │
-  -- │ indent highlighting                                      │
-  -- ╰──────────────────────────────────────────────────────────╯
   {
     "lukas-reineke/indent-blankline.nvim",
     event = "BufReadPre",

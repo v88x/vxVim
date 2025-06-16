@@ -1,8 +1,4 @@
 return {
-  -- ╭──────────────────────────────────────────────────────────╮
-  -- │ git-worktree                                             │
-  -- │ simple tool for worktree operations                      │
-  -- ╰──────────────────────────────────────────────────────────╯
   {
     "ThePrimeagen/git-worktree.nvim",
     lazy = false,

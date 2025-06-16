@@ -1,8 +1,4 @@
 return {
-  -- ╭──────────────────────────────────────────────────────────╮
-  -- │ nvim-treesitter                                          │
-  -- │ code highlighting                                        │
-  -- ╰──────────────────────────────────────────────────────────╯
   {
     "nvim-treesitter/nvim-treesitter",
     dependencies = {

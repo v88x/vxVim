@@ -1,8 +1,4 @@
 return {
-  -- ╭──────────────────────────────────────────────────────────╮
-  -- │ which-key                                                │
-  -- │ shows keybinds by pressing <leader>                      │
-  -- ╰──────────────────────────────────────────────────────────╯
   {
     "folke/which-key.nvim",
     event = "VeryLazy",

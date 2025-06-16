@@ -1,17 +1,15 @@
 local M = {}
 
--- ╭─ CONFIGURATION ────────────────────────────────────────╮
 local config = {
-  check_interval = 24 * 60 * 60, -- 24 hours in seconds
+  check_interval = 24 * 60 * 60,
   remote = "origin",
   branch = "main",
   update_file = vim.fn.stdpath("config") .. "/.last_update_check",
-  notification_timeout = 5000, -- 5 seconds
-  silent_mode = true, -- Не показывать ошибки
+  notification_timeout = 5000,
+  silent_mode = true,
   nvim_config_dir = vim.fn.stdpath("config"),
 }
 
--- ╭─ UTILITIES ────────────────────────────────────────────╮
 local function get_last_check_time()
   local file = io.open(config.update_file, "r")
   if not file then
@@ -42,9 +40,7 @@ local function is_git_repo()
   return vim.fn.isdirectory(git_dir) == 1
 end
 
--- ╭─ GIT OPERATIONS ───────────────────────────────────────╮
 local function run_git_command(cmd, callback)
-  -- Полностью тихая команда с тайм-аутом
   local full_cmd = "cd " .. config.nvim_config_dir .. " && timeout 5 " .. cmd .. " 2>/dev/null"
   
   vim.fn.jobstart(full_cmd, {
@@ -75,7 +71,12 @@ local function run_git_command_sync(cmd)
   local result = handle:read("*a")
   local success = handle:close()
   
-  return success, result and result:gsub("%s+$", "") or ""
+  if result then
+    result = result:gsub("%s+$", "")
+    result = result:gsub("^%s+", "")
+  end
+  
+  return success and result ~= nil, result or ""
 end
 
 local function fetch_updates(callback)
@@ -83,11 +84,15 @@ local function fetch_updates(callback)
 end
 
 local function check_commits_behind()
-  local cmd = "git diff --name-only HEAD.." .. config.remote .. "/" .. config.branch .. " | grep '^lua/core/' | wc -l"
+  local cmd = "git diff --name-only HEAD.." .. config.remote .. "/" .. config.branch .. " | grep '^lua/core/'"
   local success, output = run_git_command_sync(cmd)
   
   if success and output then
-    local count = tonumber(output:gsub("%s+", "")) or 0
+    local count = 0
+    for _ in output:gmatch("[^\r\n]+") do
+      count = count + 1
+    end
+    
     return count > 0, count
   end
   
@@ -116,7 +121,6 @@ local function get_changed_files()
   return "Core configuration files"
 end
 
--- ╭─ FILE OPERATIONS ──────────────────────────────────────╮
 local function create_backup()
   local backup_dir = config.nvim_config_dir .. ".backup.update." .. os.date("%Y%m%d_%H%M%S")
   local core_dir = config.nvim_config_dir .. "/lua/core"
@@ -146,7 +150,6 @@ local function clean_cache()
     end
   end
   
-  -- Remove lazy-lock.json
   local lock_file = config.nvim_config_dir .. "/lazy-lock.json"
   if vim.fn.filereadable(lock_file) == 1 then
     vim.fn.delete(lock_file)
@@ -169,7 +172,6 @@ local function update_core_files()
     return false, "Remote URL not found"
   end
   
-  -- Clone to temp directory
   local clone_cmd = "git clone --depth 1 -b " .. config.branch .. " " .. remote_url .. " " .. temp_dir .. " --quiet 2>/dev/null"
   local clone_success = os.execute(clone_cmd)
   
@@ -177,23 +179,19 @@ local function update_core_files()
     return false, "Failed to clone repository"
   end
   
-  -- Remove old core folder
   local old_core = config.nvim_config_dir .. "/lua/core"
   if vim.fn.isdirectory(old_core) == 1 then
     vim.fn.delete(old_core, "rf")
   end
   
-  -- Copy new core folder
   local copy_core_cmd = "cp -r " .. temp_dir .. "/lua/core " .. config.nvim_config_dir .. "/lua/"
   local copy_success = os.execute(copy_core_cmd)
   
   if not copy_success then
-    -- Cleanup and return error
     os.execute("rm -rf " .. temp_dir)
     return false, "Failed to copy core files"
   end
   
-  -- Copy scripts folder
   local scripts_src = temp_dir .. "/.scripts"
   local scripts_dst = config.nvim_config_dir .. "/.scripts"
   
@@ -202,16 +200,12 @@ local function update_core_files()
     os.execute("chmod +x " .. scripts_dst .. "/*.sh")
   end
   
-  -- Update timestamp
   save_check_time()
-  
-  -- Cleanup
   os.execute("rm -rf " .. temp_dir)
   
   return true, "Core updated successfully"
 end
 
--- ╭─ NOTIFICATIONS ────────────────────────────────────────╮
 local function show_update_notification(commits_count, latest_commits)
   local title = "🚀 vxVim Update Available"
   local message = string.format(
@@ -248,46 +242,47 @@ local function show_error_notification(message)
   })
 end
 
--- ╭─ UPDATE CHECKER ───────────────────────────────────────╮
 function M.check_for_updates(force)
-  -- Skip if not a git repo
   if not is_git_repo() then
     return
   end
   
-  -- Skip if not time to check (unless forced)
   if not force and not should_check_for_updates() then
     return
   end
   
-  -- Update check timestamp
   save_check_time()
   
-  -- Fetch updates asynchronously
   fetch_updates(function(fetch_success, _)
-    -- В тихом режиме просто игнорируем ошибки
     if not fetch_success and config.silent_mode and not force then
       return
     end
     
-    -- Check if we're behind
-    local has_updates, commits_count = check_commits_behind()
+    local ok, has_updates, commits_count = pcall(check_commits_behind)
     
-    if has_updates and commits_count > 0 then
+    if not ok then
+      if not config.silent_mode or force then
+        vim.notify("Error checking for updates", vim.log.levels.WARN, {
+          title = "⚠️ vxVim Update",
+          timeout = 2000,
+        })
+      end
+      return
+    end
+    
+    if has_updates and commits_count and commits_count > 0 then
       local latest_commits = get_latest_commits()
       show_update_notification(commits_count, latest_commits)
     end
   end)
 end
 
--- ╭─ MANUAL UPDATE ────────────────────────────────────────╮
 function M.update_config()
   if not is_git_repo() then
     show_error_notification("Not a git repository. Please reinstall vxVim.")
     return
   end
   
-  -- Check for updates first
   local success, _ = run_git_command_sync("git fetch " .. config.remote .. " " .. config.branch .. " --quiet")
   
   if not success then
@@ -295,7 +290,12 @@ function M.update_config()
     return
   end
   
-  local has_updates, commits_count = check_commits_behind()
+  local ok, has_updates, commits_count = pcall(check_commits_behind)
+  
+  if not ok then
+    show_error_notification("Error checking for updates. Please try again later.")
+    return
+  end
   
   if not has_updates then
     vim.notify("Already up to date!", vim.log.levels.INFO, {
@@ -305,7 +305,6 @@ function M.update_config()
     return
   end
   
-  -- Show update info
   local latest_commits = get_latest_commits()
   local changed_files = get_changed_files()
   
@@ -321,7 +320,6 @@ function M.update_config()
     timeout = 8000,
   })
   
-  -- Ask for confirmation
   vim.ui.select(
     { "✅ Yes, update core now", "❌ No, cancel" },
     {
@@ -367,7 +365,6 @@ function M.perform_update()
   end
 end
 
--- ╭─ FORCE CHECK ──────────────────────────────────────────╮
 function M.force_check()
   local old_silent = config.silent_mode
   config.silent_mode = false
@@ -375,7 +372,6 @@ function M.force_check()
   config.silent_mode = old_silent
 end
 
--- ╭─ COMMANDS ─────────────────────────────────────────────╮
 vim.api.nvim_create_user_command("VxVimUpdate", function()
   M.update_config()
 end, { desc = "Update vxVim core configuration" })
@@ -384,11 +380,12 @@ vim.api.nvim_create_user_command("VxVimCheckUpdates", function()
   M.force_check()
 end, { desc = "Check for vxVim updates" })
 
--- ╭─ AUTO SETUP ───────────────────────────────────────────╮
 function M.setup()
-  -- Запускаем проверку через 5 секунд после старта
   vim.defer_fn(function()
-    M.check_for_updates()
+    local ok, err = pcall(M.check_for_updates)
+    if not ok and not config.silent_mode then
+      vim.notify("Error in update checker: " .. tostring(err), vim.log.levels.DEBUG)
+    end
   end, 5000)
 end
 

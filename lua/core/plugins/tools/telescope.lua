@@ -1,8 +1,4 @@
 return {
-  -- ╭──────────────────────────────────────────────────────────╮
-  -- │ telescope                                                │
-  -- │ fuzzy finder over lists                                  │
-  -- ╰──────────────────────────────────────────────────────────╯
   {
     "nvim-telescope/telescope.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },

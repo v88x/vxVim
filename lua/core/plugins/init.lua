@@ -1,8 +1,4 @@
 return {
-  -- ╭──────────────────────────────────────────────────────────╮
-  -- │ mason                                                    │
-  -- │ package manager for LSP, DAP, linters, formatters        │
-  -- ╰──────────────────────────────────────────────────────────╯
   {
     "williamboman/mason.nvim",
     dependencies = {

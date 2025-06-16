@@ -1,8 +1,4 @@
 return {
-  -- ╭──────────────────────────────────────────────────────────╮
-  -- │ Comment                                                  │
-  -- │ commenting tool                                          │
-  -- ╰──────────────────────────────────────────────────────────╯
   {
     "numToStr/Comment.nvim",
     opts = {},
@@ -44,10 +40,6 @@ return {
     "LudoPinelli/comment-box.nvim",
     lazy = true,
   },
-  -- ╭──────────────────────────────────────────────────────────╮
-  -- │ todo-comments                                            │
-  -- │ todo comment highlighting                                │
-  -- ╰──────────────────────────────────────────────────────────╯
   {
     "folke/todo-comments.nvim",
     lazy = false,
