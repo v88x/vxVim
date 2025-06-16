@@ -51,7 +51,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/v88x/vxVim/main/.scripts/ins
 
 3. **Get vxVim:**
    ```bash
-   git clone https://github.com/yourusername/vxvim.git ~/.config/nvim
+   git clone https://github.com/v88x/vxvim.git ~/.config/nvim
    ```
 
 4. **Fire it up:**
