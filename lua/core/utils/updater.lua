@@ -91,55 +91,58 @@ local fs = {
 }
 
 -- Git Operations
-local git = {
-  run_command = function(cmd, callback)
-    local timeout_prefix = config.timeout_cmd ~= "" and config.timeout_cmd .. " " or ""
-    local full_cmd = "cd " .. config.nvim_config_dir .. " && " .. timeout_prefix .. cmd .. " 2>/dev/null"
-    
-    vim.fn.jobstart(full_cmd, {
-      stdout_buffered = true,
-      stderr_buffered = true,
-      on_exit = function(_, exit_code)
-        if callback then
-          callback(exit_code == 0, "")
-        end
-      end,
-      on_stdout = function(_, data)
-        if callback then
-          local result = table.concat(data, "\n"):gsub("%s+$", "")
-          callback(true, result)
-        end
-      end,
-    })
-  end,
+local function run_git_command(cmd, callback)
+  local timeout_prefix = config.timeout_cmd ~= "" and config.timeout_cmd .. " " or ""
+  local full_cmd = "cd " .. config.nvim_config_dir .. " && " .. timeout_prefix .. cmd .. " 2>/dev/null"
+  
+  vim.fn.jobstart(full_cmd, {
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_exit = function(_, exit_code)
+      if callback then
+        callback(exit_code == 0, "")
+      end
+    end,
+    on_stdout = function(_, data)
+      if callback then
+        local result = table.concat(data, "\n"):gsub("%s+$", "")
+        callback(true, result)
+      end
+    end,
+  })
+end
 
-  run_command_sync = function(cmd)
-    local timeout_prefix = config.timeout_cmd ~= "" and config.timeout_cmd .. " " or ""
-    local full_cmd = "cd " .. config.nvim_config_dir .. " && " .. timeout_prefix .. cmd .. " 2>/dev/null"
-    local handle = io.popen(full_cmd)
-    
-    if not handle then
-      return false, ""
-    end
-    
-    local result = handle:read("*a")
-    local success = handle:close()
-    
-    if result then
-      result = result:gsub("%s+$", "")
-      result = result:gsub("^%s+", "")
-    end
-    
-    return success and result ~= nil, result or ""
-  end,
+local function run_git_command_sync(cmd)
+  local timeout_prefix = config.timeout_cmd ~= "" and config.timeout_cmd .. " " or ""
+  local full_cmd = "cd " .. config.nvim_config_dir .. " && " .. timeout_prefix .. cmd .. " 2>/dev/null"
+  local handle = io.popen(full_cmd)
+  
+  if not handle then
+    return false, ""
+  end
+  
+  local result = handle:read("*a")
+  local success = handle:close()
+  
+  if result then
+    result = result:gsub("%s+$", "")
+    result = result:gsub("^%s+", "")
+  end
+  
+  return success and result ~= nil, result or ""
+end
+
+local git = {
+  run_command = run_git_command,
+  run_command_sync = run_git_command_sync,
 
   fetch_updates = function(callback)
-    git.run_command("git fetch " .. config.remote .. " " .. config.branch .. " --quiet", callback)
+    run_git_command("git fetch " .. config.remote .. " " .. config.branch .. " --quiet", callback)
   end,
 
   check_commits_behind = function()
     local cmd = "git diff --name-only HEAD.." .. config.remote .. "/" .. config.branch .. " | grep '^lua/core/'"
-    local success, output = git.run_command_sync(cmd)
+    local success, output = run_git_command_sync(cmd)
     
     if success and output then
       local count = 0
@@ -155,7 +158,7 @@ local git = {
 
   get_latest_commits = function()
     local cmd = "git log --oneline --graph HEAD.." .. config.remote .. "/" .. config.branch .. " -- lua/core/ | head -3"
-    local success, output = git.run_command_sync(cmd)
+    local success, output = run_git_command_sync(cmd)
     
     if success and output and output ~= "" then
       return output
@@ -166,7 +169,7 @@ local git = {
 
   get_changed_files = function()
     local cmd = "git diff --name-only HEAD.." .. config.remote .. "/" .. config.branch .. " | grep '^lua/core/' | head -5"
-    local success, output = git.run_command_sync(cmd)
+    local success, output = run_git_command_sync(cmd)
     
     if success and output and output ~= "" then
       return output:gsub("\n", "\n• ")
