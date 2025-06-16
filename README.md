@@ -247,7 +247,7 @@ Works out of the box with:
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+GNU GPL v3.0 License - see [LICENSE](LICENSE) file for details.
 
 ## 🙏 Thanks To
 
