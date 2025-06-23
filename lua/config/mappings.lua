@@ -8,6 +8,7 @@
 local wk = require "which-key"
 local map = vim.keymap.set
 local icons = ICONS
+local gs = require "gitsigns"
 
 -- ═══════════════════════════════════════════════════════════
 -- ░ WHICH-KEY GROUPS
@@ -256,6 +257,10 @@ end, { desc = icons.ui.debug .. " Run last", silent = true })
 -- ═══════════════════════════════════════════════════════════
 -- ░ GIT
 -- ═══════════════════════════════════════════════════════════
+map("n", "<leader>gg", "<cmd>LazyGit<CR>", {
+  desc = icons.git.icon .. " LazyGit",
+  silent = true,
+})
 map("n", "<Leader>gd", "<cmd>lua ToggleDiffviewFileHistory()<CR>", {
   desc = icons.git.icon .. " File history",
   silent = true,
@@ -264,6 +269,68 @@ map("n", "<Leader>gS", "<cmd>lua ToggleDiffviewStatus()<CR>", {
   desc = icons.git.icon .. " Git status",
   silent = true,
 })
+map("n", "<Leader>gcb", "<cmd>GitConflictChooseBoth<CR>", {
+  desc = icons.git.icon .. " Choose both",
+  silent = true,
+})
+map("n", "<Leader>gcn", "<cmd>GitConflictNextConflict<CR>", {
+  desc = icons.git.icon .. " Move to next conflict",
+  silent = true,
+})
+map("n", "<Leader>gcc", "<cmd>GitConflictChooseOurs<CR>", {
+  desc = icons.git.icon .. " Choose current",
+  silent = true,
+})
+map("n", "<Leader>gcp", "<cmd>GitConflictPrevConflict<CR>", {
+  desc = icons.git.icon .. " Move to prev conflict",
+  silent = true,
+})
+map("n", "<Leader>gci", "<cmd>GitConflictChooseTheirs<CR>", {
+  desc = icons.git.icon .. " Choose incoming",
+  silent = true,
+})
+map({ "n", "v" }, "<leader>ghs", gs.stage_hunk, {
+  desc = icons.git.icon .. " Stage hunk",
+})
+map({ "n", "v" }, "<leader>ghr", gs.reset_hunk, {
+  desc = icons.git.icon .. " Reset hunk",
+})
+map("n", "<leader>ghS", gs.stage_buffer, {
+  desc = icons.git.icon .. " Stage buffer",
+})
+map("n", "<leader>ghu", gs.undo_stage_hunk, {
+  desc = icons.git.icon .. " Undo stage hunk",
+})
+map("n", "<leader>ghR", gs.reset_buffer, {
+  desc = icons.git.icon .. " Reset buffer",
+})
+map("n", "<leader>ghp", gs.preview_hunk, {
+  desc = icons.git.icon .. " Preview hunk",
+})
+map("n", "<leader>gm", function()
+  gs.blame_line { full = true }
+end, {
+  desc = icons.git.icon .. " Blame line",
+})
+map("n", "<leader>ghd", gs.diffthis, {
+  desc = icons.git.icon .. " Diff this",
+})
+map("n", "<leader>ght", gs.toggle_deleted, {
+  desc = icons.git.icon .. " Toggle deleted",
+})
+map("x", "<Leader>gL", "<cmd>GitLink<CR>", {
+  desc = icons.git.icon .. " Get URL",
+  silent = true,
+})
+map("n", "<Leader>gwc", "<cmd>lua require('telescope').extensions.git_worktree.create_git_worktree()<CR>", {
+  desc = icons.git.icon .. " Create worktree",
+  silent = true,
+})
+map("n", "<Leader>gww", "<cmd>lua require('telescope').extensions.git_worktree.git_worktrees()<CR>", {
+  desc = icons.git.icon .. " List worktrees",
+  silent = true,
+})
+
 -- ═══════════════════════════════════════════════════════════
 -- ░ SESSIONS
 -- ═══════════════════════════════════════════════════════════
