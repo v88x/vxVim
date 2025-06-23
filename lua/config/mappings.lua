@@ -155,18 +155,8 @@ map("v", "<Leader>rp", function()
 end, { desc = icons.ui.replace .. " Refactor (Spectre)" })
 
 -- ╭─ COMMENTS ─────────────────────────────────────────────╮
-map("n", "<C-i>", function()
-  require("Comment.api").toggle.linewise.current()
-end, { desc = icons.ui.comment .. " Toggle comment" })
-map("v", "<C-i>", function()
-  require("Comment.api").toggle.linewise(vim.fn.visualmode())
-end, { desc = icons.ui.comment .. " Toggle comment" })
-map("n", "<leader>ac", function()
-  require("comment-box").llbox()
-end, { desc = icons.ui.comment .. " Comment box" })
-map("v", "<leader>ac", function()
-  require("comment-box").llbox()
-end, { desc = icons.ui.comment .. " Comment box" })
+map("n", "<C-i>", "gcc", { remap = true, desc = icons.ui.comment .. " Toggle comment" })
+map("x", "<C-i>", "gc", { remap = true, desc = icons.ui.comment .. " Toggle comment (visual)" })
 
 -- ╭─ TODO COMMENTS ────────────────────────────────────────╮
 map("n", "]t", function()

@@ -37,10 +37,6 @@ return {
     end,
   },
   {
-    "LudoPinelli/comment-box.nvim",
-    lazy = true,
-  },
-  {
     "folke/todo-comments.nvim",
     lazy = false,
     event = "BufEnter",
@@ -64,6 +60,5 @@ return {
         exclude = {},
       },
     },
-    -- keymaps moved to mappings.lua
   },
 }
