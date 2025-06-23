@@ -1,7 +1,7 @@
 -- ██╗   ██╗██╗  ██╗██████╗  ██████╗
 -- ██║   ██║╚██╗██╔╝██╔══██╗██╔════╝
--- ██║   ██║ ╚███╔╝ ██████╔╝██║     
--- ╚██╗ ██╔╝ ██╔██╗ ██╔══██╗██║     
+-- ██║   ██║ ╚███╔╝ ██████╔╝██║
+-- ╚██╗ ██╔╝ ██╔██╗ ██╔══██╗██║
 --  ╚████╔╝ ██╔╝ ██╗██║  ██║╚██████╗
 --   ╚═══╝  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝
 
@@ -17,7 +17,7 @@ VX = {
   ui = {
     colorscheme = "catppuccin", -- ░ Options: "catppuccin", "tokyonight", "gruvbox", "nord", etc.
     border = "rounded", -- ░ Options: "rounded", "single", "double", "shadow", "none"
-    transparent = true,
+    transparent = false,
   },
 
   -- ╭─ PLUGIN CONFIGURATION ─────────────────────────────────╮
@@ -66,6 +66,4 @@ VX = {
       blame_delay = 700,
     },
   },
-
-
 }

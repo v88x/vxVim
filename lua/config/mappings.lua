@@ -256,13 +256,14 @@ end, { desc = icons.ui.debug .. " Run last", silent = true })
 -- ═══════════════════════════════════════════════════════════
 -- ░ GIT
 -- ═══════════════════════════════════════════════════════════
-map("n", "<Leader>gd", function()
-  require("core.plugins.git.diffview").toggle_file_history()
-end, { desc = icons.git.icon .. " File history", silent = true })
-map("n", "<Leader>gS", function()
-  require("core.plugins.git.diffview").toggle_status()
-end, { desc = icons.git.icon .. " Git status", silent = true })
-
+map("n", "<Leader>gd", "<cmd>lua ToggleDiffviewFileHistory()<CR>", {
+  desc = icons.git.icon .. " File history",
+  silent = true,
+})
+map("n", "<Leader>gS", "<cmd>lua ToggleDiffviewStatus()<CR>", {
+  desc = icons.git.icon .. " Git status",
+  silent = true,
+})
 -- ═══════════════════════════════════════════════════════════
 -- ░ SESSIONS
 -- ═══════════════════════════════════════════════════════════
